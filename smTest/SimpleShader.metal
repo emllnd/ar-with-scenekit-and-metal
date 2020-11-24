@@ -5,7 +5,7 @@
 //  Created by Emil on 24.11.2020.
 //
 
-#include <metal_stdlib>
+/*#include <metal_stdlib>
 using namespace metal;
 
 // Define the Vertex data structure. This corresponds to the TriangleVertex struct
@@ -27,4 +27,4 @@ vertex Vertex passthrough_vertex(device Vertex *vertices [[buffer(0)]],
 fragment float4 passthrough_fragment(Vertex inVertex [[stage_in]])
 {
     return inVertex.color;
-}
+}*/

@@ -13,8 +13,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
   
-    private var pipelineState: MTLRenderPipelineState!
-    private var vertexBuffer: MTLBuffer!
+    private var pointCloudRenderer: Renderer!
+    
+    //private var pipelineState: MTLRenderPipelineState!
+    //private var vertexBuffer: MTLBuffer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,7 +47,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        setupMetalResources()
+
+        pointCloudRenderer = Renderer(
+            session: sceneView.session,
+            metalDevice: sceneView.device!,
+            sceneView: sceneView)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -85,15 +91,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // MARK: - SceneKit and Metal
   
     func renderer(_ renderer: SCNSceneRenderer, didRenderScene scene: SCNScene, atTime time: TimeInterval) {
+        pointCloudRenderer.draw()
+      
         // Used to encode additional rendering commands after SceneKit has drawn its content.
-        guard let encoder = sceneView.currentRenderCommandEncoder else { return }
+        /*guard let encoder = sceneView.currentRenderCommandEncoder else { return }
         
         encoder.setRenderPipelineState(pipelineState)
         encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)*/
     }
   
-    func setupMetalResources() {
+  
+    /*func setupMetalResources() {
         guard let device = sceneView.device else {
             assertionFailure()
             return
@@ -140,5 +149,5 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
         
         self.pipelineState = pipeline
-    }
+    }*/
 }

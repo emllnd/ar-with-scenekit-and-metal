@@ -10,9 +10,6 @@ import MetalKit
 import ARKit
 
 final class Renderer {
-    /*
-   
-
     // Maximum number of points we store in the point cloud
     private let maxPoints = 500_000
     // Number of sample points on the grid
@@ -33,7 +30,8 @@ final class Renderer {
     // Metal objects and textures
     private let device: MTLDevice
     private let library: MTLLibrary
-    private let renderDestination: RenderDestinationProvider
+    //private let renderDestination: RenderDestinationProvider
+    private let sceneView: ARSCNView
     private let relaxedStencilState: MTLDepthStencilState
     private let depthStencilState: MTLDepthStencilState
     private let commandQueue: MTLCommandQueue
@@ -103,10 +101,14 @@ final class Renderer {
         }
     }
     
-    init(session: ARSession, metalDevice device: MTLDevice, renderDestination: RenderDestinationProvider) {
+    //init(session: ARSession, metalDevice device: MTLDevice, renderDestination: RenderDestinationProvider) {
+    init(session: ARSession, metalDevice device: MTLDevice, sceneView: ARSCNView) {
+        print("point cloud Renderer initializing")
+      
         self.session = session
         self.device = device
-        self.renderDestination = renderDestination
+        //self.renderDestination = renderDestination
+        self.sceneView = sceneView
         
         library = device.makeDefaultLibrary()!
         commandQueue = device.makeCommandQueue()!
@@ -172,18 +174,17 @@ final class Renderer {
     
     func draw() {
         guard let currentFrame = session.currentFrame,
-            let renderDescriptor = renderDestination.currentRenderPassDescriptor,
-            let commandBuffer = commandQueue.makeCommandBuffer(),
-            let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderDescriptor) else {
+            //let commandBuffer = commandQueue.makeCommandBuffer(),
+            let renderEncoder = sceneView.currentRenderCommandEncoder else {
                 return
         }
         
-        _ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
+        /*_ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
         commandBuffer.addCompletedHandler { [weak self] commandBuffer in
             if let self = self {
                 self.inFlightSemaphore.signal()
             }
-        }
+        }*/
         
         // update frame data
         update(frame: currentFrame)
@@ -194,15 +195,15 @@ final class Renderer {
         pointCloudUniformsBuffers[currentBufferIndex][0] = pointCloudUniforms
         
         if shouldAccumulate(frame: currentFrame), updateDepthTextures(frame: currentFrame) {
-            accumulatePoints(frame: currentFrame, commandBuffer: commandBuffer, renderEncoder: renderEncoder)
+            accumulatePoints(frame: currentFrame, /*commandBuffer: commandBuffer, */renderEncoder: renderEncoder)
         }
         
         // check and render rgb camera image
-        if rgbUniforms.radius > 0 {
-            var retainingTextures = [capturedImageTextureY, capturedImageTextureCbCr]
+        /*if rgbUniforms.radius > 0 {
+            /*var retainingTextures = [capturedImageTextureY, capturedImageTextureCbCr]
             commandBuffer.addCompletedHandler { buffer in
                 retainingTextures.removeAll()
-            }
+            }*/
             rgbUniformsBuffers[currentBufferIndex][0] = rgbUniforms
             
             renderEncoder.setDepthStencilState(relaxedStencilState)
@@ -212,7 +213,7 @@ final class Renderer {
             renderEncoder.setFragmentTexture(CVMetalTextureGetTexture(capturedImageTextureY!), index: Int(kTextureY.rawValue))
             renderEncoder.setFragmentTexture(CVMetalTextureGetTexture(capturedImageTextureCbCr!), index: Int(kTextureCbCr.rawValue))
             renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
-        }
+        }*/
        
         // render particles
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -220,17 +221,10 @@ final class Renderer {
         renderEncoder.setVertexBuffer(pointCloudUniformsBuffers[currentBufferIndex])
         renderEncoder.setVertexBuffer(particlesBuffer)
         renderEncoder.drawPrimitives(type: .point, vertexStart: 0, vertexCount: currentPointCount)
-        renderEncoder.endEncoding()
-      
-        /*if particlesBuffer.count > 200 {
-            print(particlesBuffer[20])
-            print(particlesBuffer[200])
-            print(particlesBuffer[160])
-            print(particlesBuffer[123])
-        }*/
+        //renderEncoder.endEncoding()
             
-        commandBuffer.present(renderDestination.currentDrawable!)
-        commandBuffer.commit()
+        /*commandBuffer.present(renderDestination.currentDrawable!)
+        commandBuffer.commit()*/
     }
     
     private func shouldAccumulate(frame: ARFrame) -> Bool {
@@ -240,13 +234,14 @@ final class Renderer {
             || distance_squared(cameraTransform.columns.3, lastCameraTransform.columns.3) >= cameraTranslationThreshold
     }
     
-    private func accumulatePoints(frame: ARFrame, commandBuffer: MTLCommandBuffer, renderEncoder: MTLRenderCommandEncoder) {
+    //private func accumulatePoints(frame: ARFrame, commandBuffer: MTLCommandBuffer, renderEncoder: MTLRenderCommandEncoder) {
+    private func accumulatePoints(frame: ARFrame, /*commandBuffer: MTLCommandBuffer, */renderEncoder: MTLRenderCommandEncoder) {
         pointCloudUniforms.pointCloudCurrentIndex = Int32(currentPointIndex)
         
-        var retainingTextures = [capturedImageTextureY, capturedImageTextureCbCr, depthTexture, confidenceTexture]
+        /*var retainingTextures = [capturedImageTextureY, capturedImageTextureCbCr, depthTexture, confidenceTexture]
         commandBuffer.addCompletedHandler { buffer in
             retainingTextures.removeAll()
-        }
+        }*/
         
         renderEncoder.setDepthStencilState(relaxedStencilState)
         renderEncoder.setRenderPipelineState(unprojectPipelineState)
@@ -262,22 +257,30 @@ final class Renderer {
         currentPointIndex = (currentPointIndex + gridPointsBuffer.count) % maxPoints
         currentPointCount = min(currentPointCount + gridPointsBuffer.count, maxPoints)
         lastCameraTransform = frame.camera.transform
-    }*/
+    }
 }
 
 // MARK: - Metal Helpers
 
-/*private extension Renderer {
+private extension Renderer {
     func makeUnprojectionPipelineState() -> MTLRenderPipelineState? {
         guard let vertexFunction = library.makeFunction(name: "unprojectVertex") else {
                 return nil
         }
+      
+        /*MTLPixelFormatBGRA8Unorm_sRGB
+        MTLPixelFormatDepth32Float
+        sceneView.currentRenderPassDescriptor.
+        pipelineDescriptor.colorAttachments[0].pixelFormat = sceneView.colorPixelFormat
+        pipelineDescriptor.depthAttachmentPixelFormat = sceneView.depthPixelFormat*/
         
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.vertexFunction = vertexFunction
         descriptor.isRasterizationEnabled = false
-        descriptor.depthAttachmentPixelFormat = renderDestination.depthStencilPixelFormat
-        descriptor.colorAttachments[0].pixelFormat = renderDestination.colorPixelFormat
+        //descriptor.depthAttachmentPixelFormat = renderDestination.depthStencilPixelFormat
+        //descriptor.colorAttachments[0].pixelFormat = renderDestination.colorPixelFormat
+        descriptor.depthAttachmentPixelFormat = sceneView.depthPixelFormat
+        descriptor.colorAttachments[0].pixelFormat = sceneView.colorPixelFormat
         
         return try? device.makeRenderPipelineState(descriptor: descriptor)
     }
@@ -291,8 +294,10 @@ final class Renderer {
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.vertexFunction = vertexFunction
         descriptor.fragmentFunction = fragmentFunction
-        descriptor.depthAttachmentPixelFormat = renderDestination.depthStencilPixelFormat
-        descriptor.colorAttachments[0].pixelFormat = renderDestination.colorPixelFormat
+        //descriptor.depthAttachmentPixelFormat = renderDestination.depthStencilPixelFormat
+        //descriptor.colorAttachments[0].pixelFormat = renderDestination.colorPixelFormat
+        descriptor.depthAttachmentPixelFormat = sceneView.depthPixelFormat
+        descriptor.colorAttachments[0].pixelFormat = sceneView.colorPixelFormat
         
         return try? device.makeRenderPipelineState(descriptor: descriptor)
     }
@@ -306,8 +311,10 @@ final class Renderer {
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.vertexFunction = vertexFunction
         descriptor.fragmentFunction = fragmentFunction
-        descriptor.depthAttachmentPixelFormat = renderDestination.depthStencilPixelFormat
-        descriptor.colorAttachments[0].pixelFormat = renderDestination.colorPixelFormat
+        //descriptor.depthAttachmentPixelFormat = renderDestination.depthStencilPixelFormat
+        //descriptor.colorAttachments[0].pixelFormat = renderDestination.colorPixelFormat
+        descriptor.depthAttachmentPixelFormat = sceneView.depthPixelFormat
+        descriptor.colorAttachments[0].pixelFormat = sceneView.colorPixelFormat
         descriptor.colorAttachments[0].isBlendingEnabled = true
         descriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
         descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
@@ -382,4 +389,4 @@ final class Renderer {
         let rotationAngle = Float(cameraToDisplayRotation(orientation: orientation)) * .degreesToRadian
         return flipYZ * matrix_float4x4(simd_quaternion(rotationAngle, Float3(0, 0, 1)))
     }
-}*/
+}
