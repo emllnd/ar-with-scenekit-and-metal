@@ -85,6 +85,7 @@ final class Renderer {
     private lazy var cameraResolution = Float2(Float(sampleFrame.camera.imageResolution.width), Float(sampleFrame.camera.imageResolution.height))
     private lazy var viewToCamera = sampleFrame.displayTransform(for: orientation, viewportSize: viewportSize).inverted()
     private lazy var lastCameraTransform = sampleFrame.camera.transform
+    //private lazy var lastCameraTransform: simd_float4x4 = matrix_identity_float4x4
     
     // interfaces
     var confidenceThreshold = 1 {
@@ -111,7 +112,8 @@ final class Renderer {
         self.sceneView = sceneView
         
         library = device.makeDefaultLibrary()!
-        commandQueue = device.makeCommandQueue()!
+        //commandQueue = device.makeCommandQueue()!
+        commandQueue = sceneView.commandQueue!
         
         // initialize our buffers
         for _ in 0 ..< maxInFlightBuffers {
@@ -174,17 +176,17 @@ final class Renderer {
     
     func draw() {
         guard let currentFrame = session.currentFrame,
-            //let commandBuffer = commandQueue.makeCommandBuffer(),
+            let commandBuffer = commandQueue.makeCommandBuffer(),
             let renderEncoder = sceneView.currentRenderCommandEncoder else {
                 return
         }
         
-        /*_ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
+        _ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
         commandBuffer.addCompletedHandler { [weak self] commandBuffer in
             if let self = self {
                 self.inFlightSemaphore.signal()
             }
-        }*/
+        }
         
         // update frame data
         update(frame: currentFrame)
@@ -195,15 +197,15 @@ final class Renderer {
         pointCloudUniformsBuffers[currentBufferIndex][0] = pointCloudUniforms
         
         if shouldAccumulate(frame: currentFrame), updateDepthTextures(frame: currentFrame) {
-            accumulatePoints(frame: currentFrame, /*commandBuffer: commandBuffer, */renderEncoder: renderEncoder)
+            accumulatePoints(frame: currentFrame, commandBuffer: commandBuffer, renderEncoder: renderEncoder)
         }
         
         // check and render rgb camera image
-        /*if rgbUniforms.radius > 0 {
-            /*var retainingTextures = [capturedImageTextureY, capturedImageTextureCbCr]
+        if rgbUniforms.radius > 0 {
+            var retainingTextures = [capturedImageTextureY, capturedImageTextureCbCr]
             commandBuffer.addCompletedHandler { buffer in
                 retainingTextures.removeAll()
-            }*/
+            }
             rgbUniformsBuffers[currentBufferIndex][0] = rgbUniforms
             
             renderEncoder.setDepthStencilState(relaxedStencilState)
@@ -213,7 +215,7 @@ final class Renderer {
             renderEncoder.setFragmentTexture(CVMetalTextureGetTexture(capturedImageTextureY!), index: Int(kTextureY.rawValue))
             renderEncoder.setFragmentTexture(CVMetalTextureGetTexture(capturedImageTextureCbCr!), index: Int(kTextureCbCr.rawValue))
             renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
-        }*/
+        }
        
         // render particles
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -223,25 +225,29 @@ final class Renderer {
         renderEncoder.drawPrimitives(type: .point, vertexStart: 0, vertexCount: currentPointCount)
         //renderEncoder.endEncoding()
             
-        /*commandBuffer.present(renderDestination.currentDrawable!)
-        commandBuffer.commit()*/
+        //commandBuffer.present(renderDestination.currentDrawable!)
+        commandBuffer.commit()
     }
     
     private func shouldAccumulate(frame: ARFrame) -> Bool {
+        //return true
         let cameraTransform = frame.camera.transform
-        return currentPointCount == 0
-            || dot(cameraTransform.columns.2, lastCameraTransform.columns.2) <= cameraRotationThreshold
-            || distance_squared(cameraTransform.columns.3, lastCameraTransform.columns.3) >= cameraTranslationThreshold
+        let shouldAccum = currentPointCount == 0
+          || dot(cameraTransform.columns.2, lastCameraTransform.columns.2) <= cameraRotationThreshold
+          || distance_squared(cameraTransform.columns.3, lastCameraTransform.columns.3) >= cameraTranslationThreshold
+      
+        return shouldAccum
     }
     
-    //private func accumulatePoints(frame: ARFrame, commandBuffer: MTLCommandBuffer, renderEncoder: MTLRenderCommandEncoder) {
-    private func accumulatePoints(frame: ARFrame, /*commandBuffer: MTLCommandBuffer, */renderEncoder: MTLRenderCommandEncoder) {
+    private func accumulatePoints(frame: ARFrame, commandBuffer: MTLCommandBuffer, renderEncoder: MTLRenderCommandEncoder) {
+        print("accumulating")
+      
         pointCloudUniforms.pointCloudCurrentIndex = Int32(currentPointIndex)
         
-        /*var retainingTextures = [capturedImageTextureY, capturedImageTextureCbCr, depthTexture, confidenceTexture]
+        var retainingTextures = [capturedImageTextureY, capturedImageTextureCbCr, depthTexture, confidenceTexture]
         commandBuffer.addCompletedHandler { buffer in
             retainingTextures.removeAll()
-        }*/
+        }
         
         renderEncoder.setDepthStencilState(relaxedStencilState)
         renderEncoder.setRenderPipelineState(unprojectPipelineState)
@@ -256,6 +262,7 @@ final class Renderer {
         
         currentPointIndex = (currentPointIndex + gridPointsBuffer.count) % maxPoints
         currentPointCount = min(currentPointCount + gridPointsBuffer.count, maxPoints)
+      
         lastCameraTransform = frame.camera.transform
     }
 }
@@ -267,12 +274,6 @@ private extension Renderer {
         guard let vertexFunction = library.makeFunction(name: "unprojectVertex") else {
                 return nil
         }
-      
-        /*MTLPixelFormatBGRA8Unorm_sRGB
-        MTLPixelFormatDepth32Float
-        sceneView.currentRenderPassDescriptor.
-        pipelineDescriptor.colorAttachments[0].pixelFormat = sceneView.colorPixelFormat
-        pipelineDescriptor.depthAttachmentPixelFormat = sceneView.depthPixelFormat*/
         
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.vertexFunction = vertexFunction

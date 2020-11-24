@@ -128,5 +128,6 @@ fragment float4 particleFragment(ParticleVertexOut in [[stage_in]],
         discard_fragment();
     }
     
+    //return float4(0.9, 0.1, 0.1, 1.0);
     return in.color;
 }

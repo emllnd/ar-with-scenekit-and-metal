@@ -19,7 +19,6 @@
 		2072B197256CF04E005F3E3F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2072B192256CF04D005F3E3F /* Helpers.swift */; };
 		2072B198256CF04E005F3E3F /* MetalBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2072B193256CF04D005F3E3F /* MetalBuffer.swift */; };
 		2072B199256CF04E005F3E3F /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2072B195256CF04E005F3E3F /* Shaders.metal */; };
-		2072B1A4256CF2F5005F3E3F /* SimpleShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2072B1A3256CF2F5005F3E3F /* SimpleShader.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +59,6 @@
 		2072B193256CF04D005F3E3F /* MetalBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalBuffer.swift; sourceTree = "<group>"; };
 		2072B194256CF04D005F3E3F /* smTest-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "smTest-Bridging-Header.h"; sourceTree = "<group>"; };
 		2072B195256CF04E005F3E3F /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
-		2072B1A3256CF2F5005F3E3F /* SimpleShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SimpleShader.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +115,6 @@
 				2072B193256CF04D005F3E3F /* MetalBuffer.swift */,
 				2072B191256CF04D005F3E3F /* Renderer.swift */,
 				2072B194256CF04D005F3E3F /* smTest-Bridging-Header.h */,
-				2072B1A3256CF2F5005F3E3F /* SimpleShader.metal */,
 				2072B195256CF04E005F3E3F /* Shaders.metal */,
 				2072B190256CF04D005F3E3F /* ShaderTypes.h */,
 				2072B15F256CEFE4005F3E3F /* art.scnassets */,
@@ -281,7 +278,6 @@
 				2072B199256CF04E005F3E3F /* Shaders.metal in Sources */,
 				2072B162256CEFE4005F3E3F /* ViewController.swift in Sources */,
 				2072B198256CF04E005F3E3F /* MetalBuffer.swift in Sources */,
-				2072B1A4256CF2F5005F3E3F /* SimpleShader.metal in Sources */,
 				2072B196256CF04E005F3E3F /* Renderer.swift in Sources */,
 				2072B15E256CEFE4005F3E3F /* AppDelegate.swift in Sources */,
 				2072B197256CF04E005F3E3F /* Helpers.swift in Sources */,
