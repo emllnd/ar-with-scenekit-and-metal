@@ -15,6 +15,11 @@
 		2072B16A256CEFE6005F3E3F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2072B168256CEFE6005F3E3F /* LaunchScreen.storyboard */; };
 		2072B175256CEFE6005F3E3F /* smTestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2072B174256CEFE6005F3E3F /* smTestTests.swift */; };
 		2072B180256CEFE6005F3E3F /* smTestUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2072B17F256CEFE6005F3E3F /* smTestUITests.swift */; };
+		2072B196256CF04E005F3E3F /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2072B191256CF04D005F3E3F /* Renderer.swift */; };
+		2072B197256CF04E005F3E3F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2072B192256CF04D005F3E3F /* Helpers.swift */; };
+		2072B198256CF04E005F3E3F /* MetalBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2072B193256CF04D005F3E3F /* MetalBuffer.swift */; };
+		2072B199256CF04E005F3E3F /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2072B195256CF04E005F3E3F /* Shaders.metal */; };
+		2072B1A4256CF2F5005F3E3F /* SimpleShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2072B1A3256CF2F5005F3E3F /* SimpleShader.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +54,13 @@
 		2072B17B256CEFE6005F3E3F /* smTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = smTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2072B17F256CEFE6005F3E3F /* smTestUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = smTestUITests.swift; sourceTree = "<group>"; };
 		2072B181256CEFE6005F3E3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2072B190256CF04D005F3E3F /* ShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
+		2072B191256CF04D005F3E3F /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		2072B192256CF04D005F3E3F /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		2072B193256CF04D005F3E3F /* MetalBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalBuffer.swift; sourceTree = "<group>"; };
+		2072B194256CF04D005F3E3F /* smTest-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "smTest-Bridging-Header.h"; sourceTree = "<group>"; };
+		2072B195256CF04E005F3E3F /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		2072B1A3256CF2F5005F3E3F /* SimpleShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SimpleShader.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,8 +112,15 @@
 			isa = PBXGroup;
 			children = (
 				2072B15D256CEFE4005F3E3F /* AppDelegate.swift */,
-				2072B15F256CEFE4005F3E3F /* art.scnassets */,
 				2072B161256CEFE4005F3E3F /* ViewController.swift */,
+				2072B192256CF04D005F3E3F /* Helpers.swift */,
+				2072B193256CF04D005F3E3F /* MetalBuffer.swift */,
+				2072B191256CF04D005F3E3F /* Renderer.swift */,
+				2072B194256CF04D005F3E3F /* smTest-Bridging-Header.h */,
+				2072B1A3256CF2F5005F3E3F /* SimpleShader.metal */,
+				2072B195256CF04E005F3E3F /* Shaders.metal */,
+				2072B190256CF04D005F3E3F /* ShaderTypes.h */,
+				2072B15F256CEFE4005F3E3F /* art.scnassets */,
 				2072B163256CEFE4005F3E3F /* Main.storyboard */,
 				2072B166256CEFE6005F3E3F /* Assets.xcassets */,
 				2072B168256CEFE6005F3E3F /* LaunchScreen.storyboard */,
@@ -259,8 +278,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2072B199256CF04E005F3E3F /* Shaders.metal in Sources */,
 				2072B162256CEFE4005F3E3F /* ViewController.swift in Sources */,
+				2072B198256CF04E005F3E3F /* MetalBuffer.swift in Sources */,
+				2072B1A4256CF2F5005F3E3F /* SimpleShader.metal in Sources */,
+				2072B196256CF04E005F3E3F /* Renderer.swift in Sources */,
 				2072B15E256CEFE4005F3E3F /* AppDelegate.swift in Sources */,
+				2072B197256CF04E005F3E3F /* Helpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,6 +469,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.testOrg.smTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "smTest/smTest-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -464,6 +489,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.testOrg.smTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "smTest/smTest-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
