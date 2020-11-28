@@ -129,7 +129,7 @@ final class Renderer {
         // setup depth test for point cloud
         let depthStateDescriptor = MTLDepthStencilDescriptor()
         //depthStateDescriptor.depthCompareFunction = .lessEqual
-      depthStateDescriptor.depthCompareFunction = .greaterEqual
+        depthStateDescriptor.depthCompareFunction = .greaterEqual
         depthStateDescriptor.isDepthWriteEnabled = true
         depthStencilState = device.makeDepthStencilState(descriptor: depthStateDescriptor)!
         
@@ -169,7 +169,8 @@ final class Renderer {
         let cameraIntrinsicsInversed = camera.intrinsics.inverse
         let viewMatrix = camera.viewMatrix(for: orientation)
         let viewMatrixInversed = viewMatrix.inverse
-        let projectionMatrix = camera.projectionMatrix(for: orientation, viewportSize: viewportSize, zNear: 0.001, zFar: 0)
+        let projectionMatrix = camera.projectionMatrix(for: orientation, viewportSize: viewportSize, zNear: 0.000001, zFar: 0.01)
+      
         pointCloudUniforms.viewProjectionMatrix = projectionMatrix * viewMatrix
         pointCloudUniforms.localToWorld = viewMatrixInversed * rotateToARCamera
         pointCloudUniforms.cameraIntrinsicsInversed = cameraIntrinsicsInversed

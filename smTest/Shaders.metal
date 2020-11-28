@@ -109,9 +109,16 @@ vertex ParticleVertexOut particleVertex(uint vertexID [[vertex_id]],
     
     // animate and project the point
     float4 projectedPosition = uniforms.viewProjectionMatrix * float4(position, 1.0);
-    //projectedPosition.z = projectedPosition.z * 0.001; // ADDED
-    const float pointSize = max(uniforms.particleSize / max(1.0, projectedPosition.z), 2.0);
-    //const float pointSize = 10.0; // ADDED
+  
+    // ADDED: scale depth values to a range compatible
+    // with depth buffer rendered by SceneKit
+    projectedPosition.z = ( 1.0 - (projectedPosition.z) ) * -1.0; // scale to 0..n
+    projectedPosition.z = projectedPosition.z * 0.001; // scale to 0..Xn
+  
+
+    //const float pointSize = max(uniforms.particleSize / max(1.0, projectedPosition.z), 2.0);
+    const float pointSize = 9.0; // ADDED
+  
     projectedPosition /= projectedPosition.w;
     
     // prepare for output
