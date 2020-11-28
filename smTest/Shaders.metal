@@ -55,6 +55,7 @@ vertex void unprojectVertex(uint vertexID [[vertex_id]],
     const auto texCoord = gridPoint / uniforms.cameraResolution;
     // Sample the depth map to get the depth value
     const auto depth = depthTexture.sample(colorSampler, texCoord).r;
+    //const auto depth = 1.0 - depthTexture.sample(colorSampler, texCoord).r;
     // With a 2D point plus depth, we can now get its 3D position
     const auto position = worldPoint(gridPoint, depth, uniforms.cameraIntrinsicsInversed, uniforms.localToWorld);
     
@@ -108,7 +109,9 @@ vertex ParticleVertexOut particleVertex(uint vertexID [[vertex_id]],
     
     // animate and project the point
     float4 projectedPosition = uniforms.viewProjectionMatrix * float4(position, 1.0);
+    //projectedPosition.z = projectedPosition.z * 0.001; // ADDED
     const float pointSize = max(uniforms.particleSize / max(1.0, projectedPosition.z), 2.0);
+    //const float pointSize = 10.0; // ADDED
     projectedPosition /= projectedPosition.w;
     
     // prepare for output

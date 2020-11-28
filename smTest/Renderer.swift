@@ -128,7 +128,8 @@ final class Renderer {
         
         // setup depth test for point cloud
         let depthStateDescriptor = MTLDepthStencilDescriptor()
-        depthStateDescriptor.depthCompareFunction = .lessEqual
+        //depthStateDescriptor.depthCompareFunction = .lessEqual
+      depthStateDescriptor.depthCompareFunction = .greaterEqual
         depthStateDescriptor.isDepthWriteEnabled = true
         depthStencilState = device.makeDepthStencilState(descriptor: depthStateDescriptor)!
         
