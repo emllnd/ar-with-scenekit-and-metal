@@ -23,6 +23,10 @@ struct ParticleVertexOut {
     float pointSize [[point_size]];
     float4 color;
 };
+struct ParticleFragmentOut {
+    float depth [[depth(any)]];
+    float4 color;
+};
 
 constexpr sampler colorSampler(mip_filter::linear, mag_filter::linear, min_filter::linear);
 constant auto yCbCrToRGB = float4x4(float4(+1.0000f, +1.0000f, +1.0000f, +0.0000f),
@@ -109,12 +113,6 @@ vertex ParticleVertexOut particleVertex(uint vertexID [[vertex_id]],
     
     // animate and project the point
     float4 projectedPosition = uniforms.viewProjectionMatrix * float4(position, 1.0);
-  
-    // ADDED: scale depth values to a range compatible
-    // with depth buffer rendered by SceneKit
-    projectedPosition.z = ( 1.0 - (projectedPosition.z) ) * -1.0; // scale to 0..n
-    projectedPosition.z = projectedPosition.z * 0.001; // scale to 0..Xn
-  
 
     //const float pointSize = max(uniforms.particleSize / max(1.0, projectedPosition.z), 2.0);
     const float pointSize = 9.0; // ADDED
@@ -130,14 +128,20 @@ vertex ParticleVertexOut particleVertex(uint vertexID [[vertex_id]],
     return out;
 }
 
-fragment float4 particleFragment(ParticleVertexOut in [[stage_in]],
+fragment ParticleFragmentOut particleFragment(ParticleVertexOut in [[stage_in]],
                                  const float2 coords [[point_coord]]) {
     // we draw within a circle
     const float distSquared = length_squared(coords - float2(0.5));
     if (in.color.a == 0 || distSquared > 0.25) {
         discard_fragment();
     }
-    
-    //return float4(0.9, 0.1, 0.1, 1.0);
-    return in.color;
+
+    ParticleFragmentOut out;
+
+    // scale depth values to a range compatible
+    // with depth buffer rendered by SceneKit
+    out.depth = 1.0 - in.position.z;
+    out.color = in.color;
+
+    return out;
 }
